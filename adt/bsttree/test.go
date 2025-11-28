@@ -18,4 +18,8 @@ func RunBSTreeTest() {
 	}
 
 	bst_iter.InOrderPrintln()
+
+	bst_iter.RemoveByIter(5)
+
+	bst_iter.InOrderPrintln()
 }
