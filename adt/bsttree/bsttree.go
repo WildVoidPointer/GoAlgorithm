@@ -94,6 +94,20 @@ func (bst *BSTree[T]) Remove(d T) (BSTreeNode[T], bool) {
 		var v BSTreeNode[T]
 		return v, false
 	}
+
+	var prev *BSTreeNode[T]
+
+	curr := bst.root
+
+	for curr != nil && curr.data == d {
+		prev = curr
+
+		if d > curr.data {
+			curr = curr.right
+		} else if d < curr.data {
+			curr = curr.left
+		}
+	}
 }
 
 func (bst *BSTree[T]) InOrderPrintln() {
