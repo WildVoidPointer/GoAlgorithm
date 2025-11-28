@@ -6,31 +6,82 @@ import (
 	"fmt"
 )
 
-type BinarySearchTreeNode[T cmp.Ordered] struct {
+type BSTreeNode[T cmp.Ordered] struct {
 	data  T
-	left  *BinarySearchTreeNode[T]
-	right *BinarySearchTreeNode[T]
+	left  *BSTreeNode[T]
+	right *BSTreeNode[T]
 }
 
-type BinarySearchTree[T cmp.Ordered] struct {
-	root *BinarySearchTreeNode[T]
+type BSTree[T cmp.Ordered] struct {
+	root *BSTreeNode[T]
 }
 
-func NewBSTNode[T cmp.Ordered](v T) *BinarySearchTreeNode[T] {
-	return &BinarySearchTreeNode[T]{
+func NewBSTNode[T cmp.Ordered](v T) *BSTreeNode[T] {
+	return &BSTreeNode[T]{
 		data:  v,
 		left:  nil,
 		right: nil,
 	}
 }
 
-func NewBST[T cmp.Ordered]() *BinarySearchTree[T] {
-	return &BinarySearchTree[T]{}
+func NewBST[T cmp.Ordered]() *BSTree[T] {
+	return &BSTree[T]{}
 }
 
-func (bst *BinarySearchTree[T]) InsertByRecursion(d T) bool {
+func (bst *BSTree[T]) Search(d T) (BSTreeNode[T], bool) {
+
+	if bst.root == nil {
+		var v BSTreeNode[T]
+		return v, false
+	}
+
+	curr := bst.root
+
+	for curr != nil {
+		if d > curr.data {
+			curr = curr.right
+		} else if d < curr.data {
+			curr = curr.left
+		} else {
+			return *curr, true
+		}
+	}
+
+	var v BSTreeNode[T]
+	return v, false
+}
+
+func (bst *BSTree[T]) InsertByIter(d T) bool {
+	if bst.root == nil {
+		bst.root = NewBSTNode(d)
+		return true
+	}
+
+	curr := bst.root
+	for curr != nil {
+		if d > curr.data {
+			if curr.right == nil {
+				curr.right = NewBSTNode(d)
+				return true
+			}
+			curr = curr.right
+		} else if d < curr.data {
+			if curr.left == nil {
+				curr.left = NewBSTNode(d)
+				return true
+			}
+			curr = curr.left
+		} else {
+			return false
+		}
+	}
+
+	return true
+}
+
+func (bst *BSTree[T]) InsertByRecur(d T) bool {
 	var err error
-	bst.root, err = bst.insertByRecursionHelper(bst.root, d)
+	bst.root, err = bst.insertByRecurHelper(bst.root, d)
 	if err != nil {
 		fmt.Println(err)
 		return false
@@ -38,37 +89,45 @@ func (bst *BinarySearchTree[T]) InsertByRecursion(d T) bool {
 	return true
 }
 
-func (bst *BinarySearchTree[T]) insertByRecursionHelper(
-	node *BinarySearchTreeNode[T],
-	d T,
-) (*BinarySearchTreeNode[T], error) {
-	if node == nil {
-		return NewBSTNode(d), nil
+func (bst *BSTree[T]) Remove(d T) (BSTreeNode[T], bool) {
+	if bst == nil {
+		var v BSTreeNode[T]
+		return v, false
 	}
-
-	if d < node.data {
-		node.left, _ = bst.insertByRecursionHelper(node.left, d)
-	} else if d > node.data {
-		node.right, _ = bst.insertByRecursionHelper(node.right, d)
-	} else {
-		return node, errors.New("BinarySearchTree: " +
-			"This value already exists in the BinarySearchTree")
-	}
-	return node, nil
 }
 
-func (bst *BinarySearchTree[T]) InOrderPrintln() {
+func (bst *BSTree[T]) InOrderPrintln() {
 	fmt.Print("BinarySearchTree: {  ")
 	bst.inOrderPrintlnHelper(bst.root)
 	fmt.Print("}\n")
 }
 
-func (bst *BinarySearchTree[T]) inOrderPrintlnHelper(
-	node *BinarySearchTreeNode[T],
+func (bst *BSTree[T]) inOrderPrintlnHelper(
+	node *BSTreeNode[T],
 ) {
 	if node != nil {
 		bst.inOrderPrintlnHelper(node.left)
 		fmt.Printf("%v  ", node.data)
 		bst.inOrderPrintlnHelper(node.right)
 	}
+}
+
+func (bst *BSTree[T]) insertByRecurHelper(
+	node *BSTreeNode[T],
+	d T,
+) (*BSTreeNode[T], error) {
+
+	if node == nil {
+		return NewBSTNode(d), nil
+	}
+
+	if d < node.data {
+		node.left, _ = bst.insertByRecurHelper(node.left, d)
+	} else if d > node.data {
+		node.right, _ = bst.insertByRecurHelper(node.right, d)
+	} else {
+		return node, errors.New("BSTree: " +
+			"This value already exists in the BinarySearchTree")
+	}
+	return node, nil
 }
